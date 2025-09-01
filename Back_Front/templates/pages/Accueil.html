@@ -1,0 +1,107 @@
+<!--
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importation CSV</title>
+    <link rel="stylesheet" href="{% static 'css/style_dashboard.css' %}">
+</head>
+
+<body>
+    <div class="container">
+        <main class="main-content">
+            <div class="header">
+                <h1>Veuillez importer votre fichier</h1>
+                {% if error %}
+                    <p class="error-message">{{ error }}</p>
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" class="upload-form" onsubmit="showLoader()">
+                    {% csrf_token %}
+                    <input type="file" name="type_file" accept=".csv,.xlsx,.json" required>
+                    <button type="submit">Importer</button>
+                </form>
+
+                <div id="loader" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Importation en cours...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showLoader() {
+            document.querySelector('.upload-form').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
+
+-->
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importation CSV</title>
+    <link rel="stylesheet" href="{% static 'css/style_dashboard.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body class="light-mode">
+    <div class="background">
+        <div class="overlay"></div>
+
+        <!-- Toggle icône thème -->
+        <div class="theme-toggle">
+            <i id="toggleTheme" class='bx bx-moon'></i>
+        </div>
+
+        <div class="container">
+            <main class="main-content">
+                <div class="header">
+                    <h1>Importer votre fichier pour analyse</h1>
+
+                    {% if error %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data" class="upload-form" onsubmit="showLoader()">
+                        {% csrf_token %}
+                        <input type="file" name="type_file" accept=".csv,.xlsx,.json" required>
+                        <button type="submit">Importer</button>
+                    </form>
+
+                    <div id="loader">
+                        <div class="spinner"></div>
+                        <p>Importation en cours...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function showLoader() {
+            document.querySelector('.upload-form').style.display = 'none';
+            document.getElementById('loader').style.display = 'flex';
+        }
+
+        // Mode clair / sombre avec icône
+        const toggleIcon = document.getElementById('toggleTheme');
+        toggleIcon.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+            toggleIcon.className = document.body.classList.contains('dark-mode') ? 'bx bx-sun' : 'bx bx-moon';
+        });
+    </script>
+</body>
+</html>

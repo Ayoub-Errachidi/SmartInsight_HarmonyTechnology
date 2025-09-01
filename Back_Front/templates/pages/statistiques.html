@@ -1,0 +1,431 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataSet - SmartInsight</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/styles_statistiques.css' %}">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class='bx bx-stats'></i>
+            <div class="logo-name"><span>Smart</span>Insight</div>
+        </a>
+
+        <ul class="side-menu">
+            <li><a href="{% url 'dashboard' %}"><i class='bx bxs-dashboard'></i>Import a file</a></li>
+            <li><a href="{% url 'informations_dataset' %}"><i class='bx bxs-color'></i>Dashboard</a></li>
+            <li><a href="{% url 'dataset' %}"><i class='bx bx-data'></i>DataSet</a></li>
+            <li class="active"><a href="{% url 'statistiques' %}"><i class='bx  bx-bar-chart'></i>Statistics</a></li>
+            <li><a href="{% url 'visualisations' %}"><i class='bx bx-scatter-chart' ></i>Visualization</a></li>
+            <li><a href="{% url 'pretraitement_complet' %}"><i class='bx bx-message-square-dots'></i>Full cleaning</a></li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button class="search-btn" type="submit"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="theme-toggle" hidden>
+            <label for="theme-toggle" class="theme-toggle"></label>
+            <a href="#" class="notif">
+                <i class='bx bx-bell'></i>
+                <span class="count">12</span>
+            </a>
+            <a href="#" class="profile">
+                <img src="{% static 'images/111.png' %}">
+            </a>
+        </nav>
+        <!-- End of Navbar -->
+
+        <main>
+            <header class="page-header">Statistiques des Données Importées</header>
+
+            {% if error %}
+                <div class="table-card" style="background:#fdecea; color:#c62828; border-left:6px solid #ef5350;">
+                    {{ error }}
+                </div>
+            {% else %}
+
+            <!-- -------------------- Statistiques de base -------------------- -->
+            {% if stats_base %}
+            <div class="table-card">
+                <h4>1. Statistiques descriptives (variables numériques)</h4>
+                <div class="dataset-table-container" style="color: black;">
+                    {{ stats_base|safe }}
+                </div>
+            </div>
+
+            <!------- Explications IA ------->
+            <div class="explanations">
+                <h2> Explication AI pour Statistiques Descriptives </h2>
+
+                {%for col, values in stats_base_dict.items %}
+                    <div class="explanation-item">
+                        <h3>Statistiques Descriptives Pour <span style="font-weight: bold; color: rebeccapurple ;text-decoration: underline;">{{ col }}</span></h3>
+                        <p id="explanation-{{ forloop.counter }}"
+                        data-variable="{{ col }}"
+                        data-values="count: {{ values.count }}, mean: {{ values.mean }}, std: {{ values.std }}, min: {{ values.min }}, q1: {{ values.q1 }}, median: {{ values.median }}, q3: {{ values.q3 }}, max: {{ values.max }}">
+                        Cliquez pour générer une explication personnalisée.
+                        </p>
+
+                        <!-- Bouton centré uniquement -->
+                        <div class="btn-wrapper">
+                            <button class="btn btn-ai-explain" 
+                                data-section = "Stats_Desc"
+                                data-target-id = "explanation-{{ forloop.counter }}">
+                                Générer l'explication IA
+                            </button>
+                            <button class="btn btn-ai-stop"
+                                data-target-id = "explanation-{{ forloop.counter }}"
+                                style="margin-left: 10px; display: none;">
+                                Stop explication IA
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- -------------------- Statistiques avancées -------------------- -->
+            {% if stats_adv %}
+            <div class="table-card">
+                <h4>2. Statistiques avancées</h4>
+                <div class="dataset-table-container">
+                    {{ stats_adv|safe }}
+                </div>
+            </div>
+
+            <!------- Explications IA ------->
+            <div class="explanations">
+                <h2> Explication AI pour Statistiques Avancées </h2>
+
+                {%for col, values in stats_base_dict.items %}
+                    <div class="explanation-item">
+                        <h3>Statistiques Avancées Pour <span style="font-weight: bold; color: rebeccapurple ;text-decoration: underline;">{{ col }}</span></h3>
+                        <p id="explanation-adv-{{ forloop.counter }}"
+                          data-variable="{{ col }}"
+                          data-values="médiane: {{ values.median }}, variance: {{ values.variance }}, std: {{ values.std }}, coef_var: {{ values.coef_var }}, skewness: {{ values.skewness }}, kurtosis: {{ values.kurtosis }}">
+                          Cliquez pour générer une explication IA sur la distribution.
+                        </p>
+
+                        <!-- Bouton centré uniquement -->
+                        <div class="btn-wrapper">
+                            <button class="btn btn-ai-explain" 
+                                data-section = "Stats_adv"
+                                data-target-id = "explanation-adv-{{ forloop.counter }}">
+                                Générer l'explication IA
+                            </button>
+                            <button class="btn btn-ai-stop"
+                                data-target-id = "explanation-adv-{{ forloop.counter }}"
+                                style="margin-left: 10px; display: none;">
+                                Stop explication IA
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+
+            <!-- -------------------- Statistiques textuelles -------------------- -->
+            {% if stats_text %}
+            <div class="table-card">
+                <h4>3. Analyse des variables textuelles</h4>
+
+                <h5>3.1 Valeurs uniques</h5>
+                <div class="dataset-table-container">{{ stats_text.unique_values|safe }}</div>
+
+                <!------- Explications IA ------->
+                <div class="explanations">
+                    <h2> Explication AI pour Variables Textuelles </h2>
+                    <div class="explanation-item">
+                        <h3> Valeurs Uniques </h3>
+                        <p id="explanation-text-unique"
+                            data-section="Text_Unique"
+                            data-values="{{ stats_text_dict }}">
+                            Cliquez pour générer une explication IA des valeurs uniques.
+                        </p>
+
+                        <!-- Bouton centré uniquement -->
+                        <div class="btn-wrapper">
+                            <button class="btn btn-ai-explain" 
+                                data-target-id="explanation-text-unique"
+                                data-section="Text_Unique">
+                                Générer l'explication IA
+                            </button>
+                            <button class="btn btn-ai-stop"
+                                data-target-id = "explanation-text-unique"
+                                style="margin-left: 10px; display: none;">
+                                Stop explication IA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <h5>3.2 Fréquence des valeurs les plus courantes</h5>
+                <div class="dataset-table-container">{{ stats_text.top_values|safe }}</div>
+
+                <!------- Explications IA ------->
+                <div class="explanations">
+                    <h2> Explication AI pour Variables Textuelles </h2>
+                    <div class="explanation-item">
+                        <h3> Valeurs les Plus Fréquentes </h3>
+                        <p id="explanation-text-top"
+                            data-section="Text_Top"
+                            data-values="{{ top_values_dict | safe }}">
+                            Cliquez pour générer une explication IA des valeurs les plus fréquentes.
+                        </p>
+
+                        <!-- Bouton centré uniquement -->
+                        <div class="btn-wrapper">
+                            <button class="btn btn-ai-explain" 
+                                data-target-id="explanation-text-top"
+                                data-section="Text_Top">
+                                Générer l'explication IA
+                            </button>
+                            <button class="btn btn-ai-stop"
+                                data-target-id = "explanation-text-top"
+                                style="margin-left: 10px; display: none;">
+                                Stop explication IA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <h5>3.3 Nombre moyen de mots</h5>
+                <div class="dataset-table-container">{{ stats_text.avg_word_count|safe }}</div>
+
+                <!------- Explications IA ------->
+                <div class="explanations">
+                    <h2> Explication AI pour Variables Textuelles </h2>
+                    <div class="explanation-item">
+                        <h3> Nombre Moyen de Mots </h3>
+                        <p id="explanation-text-wordcount"
+                            data-section="Text_WordCount"
+                            data-values="{{ stats_text.avg_word_count | striptags }}"
+                            data-values1="{{ stats_text_dict }}">
+                            Cliquez pour générer une explication IA du nombre moyen de mots.
+                        </p>
+
+                        <!-- Bouton centré uniquement -->
+                        <div class="btn-wrapper">
+                            <button class="btn btn-ai-explain"
+                                data-target-id="explanation-text-wordcount"
+                                data-section="Text_WordCount">
+                                Générer l'explication IA
+                            </button>
+                            <button class="btn btn-ai-stop"
+                                data-target-id ="explanation-text-wordcount"
+                                style="margin-left: 10px; display: none;">
+                                Stop explication IA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- -------------------- Valeurs manquantes -------------------- -->
+            {% if missing_values %}
+            <div class="table-card">
+                <h4>4. Valeurs manquantes</h4>
+                <div class="dataset-table-container">
+                    {{ missing_values|safe }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- -------------------- Valeurs aberrantes -------------------- -->
+            {% if outliers %}
+            <div class="table-card">
+                <h4>5. Valeurs aberrantes (Outliers)</h4>
+                <div class="dataset-table-container">
+                    {{ outliers|safe }}
+                </div>
+
+                {% if has_outliers %}
+                    <div class="action-buttons" style="text-align: center; margin-top: 20px;">
+                        <a href="{% url 'nettoyer_outliers' %}" class="btn-outline">Nettoyer les valeurs aberrantes</a>
+                    </div>
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+            <!-- -------------------- PCA -------------------- 
+
+            {% if pca_html %}
+            <div class="table-card">
+                <h4>6. Analyse en Composantes Principales (PCA)</h4>
+                <div class="dataset-table-container">
+                    {{ pca_html|safe }}
+                </div>
+            </div>
+            {% endif %}
+
+            -->
+
+            {% endif %}          
+        </main>
+    </div>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const tables = document.querySelectorAll("table");
+            tables.forEach(table => {
+            table.classList.add("dataset-table");
+            });
+        });
+    </script>
+
+    <script type="module">
+      import { formatAIChunk } from "/static/js/ai_formatter.js";
+
+      document.querySelectorAll('.btn-ai-explain').forEach(button => {
+        button.addEventListener('click', async function () {
+          const targetId = button.getAttribute('data-target-id');
+          const section = button.getAttribute('data-section');
+          const el = document.getElementById(targetId);
+          const stopButton = document.querySelector(`.btn-ai-stop[data-target-id="${targetId}"]`);
+
+
+          // Définir le contrôleur pour stopper la lecture du flux
+          let controller;
+          let reader;
+          let isStopped = false;
+
+          // Récupération des données personnalisées selon la section
+          const variable = el.dataset.variable;
+          const values = el.dataset.values;
+          const values1 = el.dataset.values1;
+
+          // Empêcher les clics multiples
+          button.disabled = true;
+          stopButton.style.display = 'inline-block';
+          stopButton.disabled = false;
+
+          // Construire dynamiquement le prompt
+          let prompt = "";
+          if (section === "Stats_Desc") {
+            prompt = `Les statistiques descriptives de ce tableau : ${variable} : ${values}
+
+            Génère une explication claire et simple en français de ce que cela signifie.`;
+          } else if (section === "Stats_adv") {
+            prompt = `Voici des statistiques avancées pour la variable "${variable}" : ${values}.
+
+            Donne une explication claire et simple en français sur ce que ces valeurs signifient (asymétrie/skewness, aplatissement/kurtosis, coefficient de variation). 
+            Explique s'il y a une forte dispersion ou une distribution non normale.`;
+          } else if (section === "Text_Unique") {
+            prompt = `Faire une Analyse des colonnes textuelles suivantes représentées sous forme de dictionnaire : ${values}.
+            
+            Pour chaque colonne :
+            1. Fournis une explication concise et pédagogique sur sa nature.
+            2. Donne nombre et Les valeurs uniques disponibles(Si existe plus que 20 Valeurs citer les 3 Premiers valeurs par exemple) en Français.
+            Ta réponse doit être claire en Français, rapide à lire et adaptée à un usage professionnel.`;
+          } else if (section === "Text_Top") {
+            prompt = `Voici les valeurs textuelles les plus fréquentes : ${values}.
+
+            Pour chaque colonne :
+            1. Explique la valeur dominante (top) et son poids (freq) par rapport au total (count) pour détecter les déséquilibres ou la prédominance d'une modalité.
+            2. Indique si la colonne semble homogène ou hétérogène, et si une valeur écrase les autres (tendance forte).
+
+            - Ta réponse doit être claire et rapide en français.
+            Donne une explication simple en français sur les tendances ou déséquilibres possibles.`;
+          } else if (section === "Text_WordCount") {
+            prompt = `en français, Voici le nombre moyen de mots pour chaque colonne : ${values}.
+            - Les valeurs de chaque colonnes :  ${values1}.
+             
+            Pour chaque colonne :
+            1. Citer tous les colonnes avec leur nombre moyen de mots avec explication pertinent et court des valeurs en français.
+            Explique ce que cela signifie en français pour la qualité ou richesse des données textuelles.`;
+          }
+
+
+          let displayText = '';
+          let timer = 0;
+          const startTime = performance.now();
+
+          el.innerHTML = '⏱️ Génération en cours : 0.0 sec';
+          
+
+          const timerId = setInterval(() => {
+            const currentTime = ((performance.now() - startTime) / 1000).toFixed(1);
+            el.innerHTML = displayText + `<br><br>⏱️ Génération en cours : ${currentTime} sec`;
+          }, 100);
+
+          const state = {
+            isBold: false,
+            boldBuffer: '',
+            asteriskCount: 0
+          };
+
+          stopButton.addEventListener('click', () => {
+            isStopped = true;
+            if (controller) controller.abort(); // Stoppe la lecture
+            clearInterval(timerId);
+            el.innerHTML += `<br><br>🛑 Explication arrêtée par l'utilisateur.`;
+            button.disabled = false;
+            stopButton.style.display = 'none';
+          }, { once: true }); // une seule fois pour éviter conflits
+
+          try {
+            controller = new AbortController();
+            const response = await fetch(`/stream_explanation/?prompt=${encodeURIComponent(prompt)}`, {
+              signal: controller.signal
+            });
+
+            reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            async function readChunk() {
+              const { done, value } = await reader.read();
+              if (done || isStopped) {
+                clearInterval(timerId);
+                const duration = ((performance.now() - startTime) / 1000).toFixed(2);
+                if (!isStopped) el.innerHTML = displayText + `<br><br>✅ Temps total : ${duration} sec`;
+                button.disabled = false;
+                stopButton.style.display = 'none';
+                return;
+              }
+
+              const chunk = decoder.decode(value, { stream: true });
+              const formattedChunk = formatAIChunk(chunk, state);
+              displayText += formattedChunk;
+              await readChunk();
+            }
+
+            await readChunk();
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              console.error("Erreur IA :", error);
+              el.textContent = "❌ Erreur lors de la génération de l'explication.";
+            }
+          } finally {
+            button.disabled = false;
+            stopButton.style.display = 'none';
+            clearInterval(timerId);
+          }
+        });
+      });
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,605 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informations Dataset - SmartInsight</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/styles_info.css' %}">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class='bx bx-stats'></i>
+            <div class="logo-name"><span>Smart</span>Insight</div>
+        </a>
+        <ul class="side-menu">
+            <li><a href="{% url 'dashboard' %}"><i class='bx bxs-dashboard'></i>Import a file</a></li>
+            <li class="active"><a href="{% url 'informations_dataset' %}"><i class='bx bxs-color'></i>Dashboard</a></li>
+            <li><a href="{% url 'dataset' %}"><i class='bx bx-data'></i>DataSet</a></li>
+            <li><a href="{% url 'statistiques' %}"><i class='bx  bx-bar-chart'></i>Statistics</a></li>
+            <li><a href="{% url 'visualisations' %}"><i class='bx bx-scatter-chart' ></i>Visualization</a></li>
+            <li><a href="{% url 'pretraitement_complet' %}"><i class='bx bx-message-square-dots'></i>Full cleaning</a></li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button class="search-btn" type="submit"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="theme-toggle" hidden>
+            <label for="theme-toggle" class="theme-toggle"></label>
+            <a href="#" class="notif">
+                <i class='bx bx-bell'></i>
+                <span class="count">12</span>
+            </a>
+            <a href="#" class="profile">
+                <img src="{% static 'images/111.png' %}" alt="Profile">
+            </a>
+        </nav>
+        <!-- End of Navbar -->
+
+        <!-- Main -->
+        <main>
+            <header class="page-header">Dashboard</header>
+
+            <!------------------ Informations sur le Dataset ------------------>
+            <div id="dataset-info">
+                <h1>Informations sur le Dataset</h1>
+
+                <!-- Nom du dataset et fichier original -->
+                <p class="info-text">
+                    <strong>Nom du dataset :</strong> {{ dataset_name }}
+                </p>
+                <p class="info-text">
+                    <strong>Fichier original :</strong> {{ original_filename }}
+                </p>
+                <!-- Fin -->
+
+                <p class="subtitle">
+                    Voici un aperçu global des informations structurées de votre dataset chargé
+                </p>
+
+                <div class="grid-container">
+                    <!-- Forme des données -->
+                    <section class="card">
+                        <h4 style="color: #363949;">Forme des données</h4>
+                        <p>{{ shape }}</p>
+                    </section>
+
+                    <!-- Nombre de lignes -->
+                    <section class="card green">
+                        <h4 style="color: #363949;">Nombre de lignes</h4>
+                        <p>{{ lignes }}</p>
+                    </section>
+
+                    <!-- Nombre de colonnes -->
+                    <section class="card orange">
+                        <h4 style="color: #363949;">Nombre de colonnes</h4>
+                        <p>{{ colonnes }}</p>
+                    </section>
+                </div>
+                    
+                <!-- Noms des colonnes -->
+                <div class="grid-container full-width">
+                    <section class="card columns-list">
+                        <h4 style="color: #363949;">Noms des colonnes</h4>
+                        <div>
+                            {% if columns %}
+                                {% for col in columns %}
+                                    <span class="pill" style="color: #363949;">{{ col }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <p>Aucune colonne détectée dans le dataset</p>
+                            {% endif %}
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!------- Explications IA ------->
+            <div class="explanations">
+                <!-- Dataset : Ligne + colonne -->
+                <div class="explanation-item">
+                    <p id="explanation-Dataset"
+                      data-section="Dataset"
+                      data-ligne="{{ lignes }}"
+                      data-nbcolonne="{{ colonnes }}"
+                      data-colonne="{{ columns }}"
+                      data-premiers="{{ head_data }}">
+                      Cliquez ici pour générer une explication IA du jeu de données.
+                    </p>
+                    <!-- Bouton centré uniquement -->
+                    <div class="btn-wrapper">
+                      <button class="btn btn-ai-explain"
+                              data-target-id="explanation-Dataset"
+                              data-section="Dataset">
+                         Générer l'explication IA
+                      </button>
+                      <button class="btn btn-ai-stop"
+                              data-target-id="explanation-Dataset"
+                              style="margin-left: 10px; display: none;">
+                         Stop explication IA
+                      </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!------------------ Fin des informations ------------------>
+
+            <!------------------ Catégories des Colonnes ------------------>
+            <div id="dataset-info">
+                <h1>Catégories des Colonnes</h1>
+                <div class="grid-container">
+
+                    <!-- Colonnes Numériques -->
+                    <section class="card green">
+                        <h4 style="color: #363949;">Colonnes Numériques <span>({{ num_columns }})</span></h4>
+                        {% if numeric_colonne %}
+                            <div class="pill-container">
+                            {% for col in numeric_colonne %}
+                                <span class="pill" style="color: #363949;">{{ col }}</span>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="no-data">Aucune colonne numérique détectée.</p>
+                        {% endif %}
+                    </section>
+
+                    <!-- Colonnes Textuelles -->
+                    <section class="card orange">
+                        <h4 style="color: #363949;">Colonnes Textuelles <span>({{ text_columns }})</span></h4>
+                        {% if text_colonne %}
+                            <div class="pill-container">
+                            {% for col in text_colonne %}
+                                <span class="pill" style="color: #363949;">{{ col }}</span>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="no-data">Aucune colonne textuelle détectée.</p>
+                        {% endif %}
+                    </section>
+
+                    <!-- Colonnes de Dates -->
+                    <section class="card blue">
+                        <h4 style="color: #363949;">Colonnes de Dates <span>({{ date_columns }})</span></h4>
+                        {% if date_colonne %}
+                            <div class="pill-container">
+                            {% for col in date_colonne %}
+                                <span class="pill pill-blue">{{ col }}</span>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="no-data">Aucune colonne date détectée.</p>
+                        {% endif %}
+                    </section>
+
+                </div>
+            </div>
+            <!------------------ Fin Catégories ------------------>
+
+
+            <!------------------ Types de Données ------------------>
+            <div id="dataset-info">
+                <h1>Types de Données</h1>
+                <div class="grid-container">
+                    <section class="card green">
+                        <h4 style="color: #363949;">Détail des colonnes par type</h4>
+                        <p class="subtitle">Nom de chaque colonne et son type détecté automatiquement.</p>
+                        <div class="dataset-table-container">
+                            <table class="dataset-table">
+                                <thead>
+                                    <tr>
+                                    <th>Nom de la colonne</th>
+                                    <th>Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for col, dtype in dtypes_data %}
+                                    <tr>
+                                    <td>{{ col }}</td>
+                                    <td>{{ dtype }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!--------- Explication IA --------->
+            <div class="explanations">
+                <!-- Dataset : Ligne + colonne -->
+                <div class="explanation-item">
+                    <p id="explanation-Colonnes"
+                      data-section="Colonnes"
+                      data-numeric="{{ numeric_colonne }}"
+                      data-types="{{ dtypes }}"
+                      data-text="{{ text_colonne }}"
+                      data-nbcolonne="{{ colonnes }}"
+                      data-premiers="{{ head_data }}">
+                      Cliquez pour générer une explication IA des colonnes.
+                    </p>
+                    <!-- Bouton centré uniquement -->
+                    <div class="btn-wrapper">
+                      <button class="btn btn-ai-explain"
+                            data-target-id="explanation-Colonnes"
+                            data-section="Colonnes">
+                         Générer l'explication IA
+                      </button>
+                      <button class="btn btn-ai-stop"
+                              data-target-id="explanation-Colonnes"
+                              style="margin-left: 10px; display: none;">
+                         Stop explication IA
+                      </button>
+                    </div>
+                </div>
+            </div>
+            <!------------------ Fin Types ------------------>
+
+
+            <!------------------ Valeurs Manquantes ------------------>
+            <div id="dataset-info">
+                <h1>Valeurs Manquantes par Colonne</h1>
+                <div class="grid-container">
+                    <section class="card">
+                        <h4 style="color: #363949;">Valeurs Manquantes</h4>
+                        <p><strong>Avec valeurs manquantes :</strong> <span style="color: #c62828;">{{ colonnes_avec_valeurs_nulles }}</span></p>
+                        <p><strong>Sans valeurs manquantes :</strong> <span style="color: #2e7d32;">{{ colonnes_sans_valeurs_nulles }}</span></p>
+                        <hr>
+                        {% if null_values_list %}
+                            <ul class="missing-values-list">
+                            {% for col, count, percent in null_values_list %}
+                            <li>
+                                <strong>{{ col }}</strong>
+                                {% if count > 0 %}
+                                <span class="missing-value">{{ count }} ({{ percent }}%)</span>
+                                {% else %}
+                                <span class="no-missing">aucune valeur manquante</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="no-data">Aucune colonne détectée.</p>
+                        {% endif %}
+                    </section>
+                </div>
+
+                <!-- Bouton Nettoyage si valeurs manquantes -->
+                {% if colonnes_avec_valeurs_nulles %}
+                <form action="{% url 'nettoyage' %}" method="get" class="clean-form">
+                    <button type="submit" class="btn-clean">Nettoyer les données</button>
+                </form>
+                {% endif %}
+
+            </div>
+
+            <!--------- Explication IA --------->
+            <div class="explanations">
+                <!-- Missing Values -->
+                <div class="explanation-item">
+                    <p id="explanation-Missing-Values"
+                    data-section="MissingValues"
+                    data-NonNull="colonnes_avec_valeurs_nulles"
+                    data-Null="colonnes_sans_valeurs_nulles"
+                    data-MissingValues="{% for col, count, percent in null_values_list %}{{ col }} : {{ count }} valeur(s) manquante(s){% if not forloop.last %}, {% endif %}{% endfor %}">
+                      Cliquez ici pour générer une explication IA sur les valeurs manquantes.
+                    </p>
+                    <!-- Bouton centré uniquement -->
+                    <div class="btn-wrapper">
+                      <button class="btn btn-ai-explain"
+                              data-target-id="explanation-Missing-Values"
+                              data-section="Missing-Values">
+                         Générer l'explication IA
+                      </button>
+                      <button class="btn btn-ai-stop"
+                              data-target-id="explanation-Missing-Values"
+                              style="margin-left: 10px; display: none;">
+                        Stop explication IA
+                      </button>
+                    </div>
+                </div>
+            </div>
+
+            <!------------------ Fin Valeurs Manquantes ------------------>
+
+
+            <!------------------ Lignes Duplicées ------------------>
+            <div id="dataset-info">
+                <h1>Lignes Duplicées</h1>
+                <div class="grid-container">
+                    <section class="card green">
+                    {% if duplicated_non_consecutive_count > 0 %}
+                        <p><strong>Doublons non consécutifs :</strong> <span class="tag info">{{ duplicated_non_consecutive_count }}</span></p>
+                        <div class="dataset-table-container">
+                        <table class="dataset-table">
+                            <thead>
+                            <tr>
+                                {% for col in duplicated_non_consecutive.0.keys %}<th>{{ col }}</th>{% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in duplicated_non_consecutive %}
+                            <tr>{% for val in row.values %}<td>{{ val }}</td>{% endfor %}</tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                    {% endif %}
+
+                    {% if duplicated_rows_consecutive_count > 0 %}
+                        <p><strong>Groupes de doublons consécutifs :</strong> <span class="tag warning">{{ duplicated_rows_consecutive_count }} groupes - {{ total_lignes_doublons_consecutifs }} lignes</span></p>
+                        <div class="dataset-table-container">
+                        <table class="dataset-table">
+                            <thead>
+                            <tr>
+                                {% for col in duplicated_rows_consecutive.0.keys %}<th>{{ col }}</th>{% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in duplicated_rows_consecutive %}
+                            <tr>{% for val in row.values %}<td>{{ val }}</td>{% endfor %}</tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                    {% endif %}
+
+                    {% if duplicated_rows_all_count > 0 %}
+                        <p><strong>Total doublons :</strong> <span class="tag danger">{{ duplicated_rows_all_count }}</span></p>
+                        <div class="dataset-table-container">
+                        <table class="dataset-table">
+                            <thead>
+                            <tr>
+                                {% for col in duplicated_rows_all.0.keys %}<th>{{ col }}</th>{% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for row in duplicated_rows_all %}
+                            <tr>{% for val in row.values %}<td>{{ val }}</td>{% endfor %}</tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        </div>
+                    {% endif %}
+
+                    {% if duplicated_rows_all_count == 0 %}
+                        <div class="no-duplicates-message">
+                        <strong>Aucun doublon détecté :</strong> <span>Le dataset ne contient aucune ligne dupliquée.</span>
+                        </div>
+                    {% endif %}
+                    </section>
+                </div>
+
+                <!-- Bouton Nettoyage si valeurs manquantes -->
+                {% if duplicated_rows_all_count > 0 %}
+                <form action="{% url 'supprimer_doublons' %}" method="get" class="clean-form">
+                    <button type="submit" class="btn-clean">Supprimer les Doublons</button>
+                </form>
+                {% endif %}
+            </div>
+
+            <!--------- Explication IA --------->
+            <div class="explanations">
+                <!-- Duplicates Section -->
+                <div class="explanation-item">
+                    <p id="explanation-Duplicates"
+                      data-section="Duplicates"
+                      data-duplicates_consecutive="{{ duplicated_rows_consecutive_count }}"
+                      data-duplicates_nonconsecutive="{{ duplicated_non_consecutive_count }}"
+                      data-duplicates_all="{{ duplicated_rows_all_count }}">
+                      Cliquez ici pour générer une explication IA sur les lignes dupliquées.
+                    </p>
+                    <!-- Bouton centré uniquement -->
+                    <div class="btn-wrapper">
+                      <button class="btn btn-ai-explain"
+                              data-target-id="explanation-Duplicates"
+                              data-section="Duplicates">
+                         Générer l'explication IA
+                      </button>
+                      <button class="btn btn-ai-stop"
+                              data-target-id="explanation-Duplicates"
+                              style="margin-left: 10px; display: none;">
+                        Stop explication IA
+                      </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!------------------ Fin Duplicates ------------------>
+        </main>
+    </div>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script type="module" src="{% static 'js/ai_formatter.js' %}"></script>
+
+    <script>
+        // Affiche ou cache les options en fonction de la méthode choisie
+        function toggleOptions() {
+            const method = document.getElementById('method').value;
+            document.getElementById('dropOptions').style.display = (method === 'drop') ? 'block' : 'none';
+            document.getElementById('fillOptions').style.display = (method === 'fill') ? 'block' : 'none';
+        }
+
+        // Appeler au chargement pour bien afficher les options selon l'état initial
+        window.onload = toggleOptions;
+    </script>
+    
+    <script type="module">
+      import { formatAIChunk } from "/static/js/ai_formatter.js";
+
+      document.querySelectorAll('.btn-ai-explain').forEach(button => {
+        button.addEventListener('click', async function () {
+          const targetId = button.getAttribute('data-target-id');
+          const section = button.getAttribute('data-section');
+          const el = document.getElementById(targetId);
+          const stopButton = document.querySelector(`.btn-ai-stop[data-target-id="${targetId}"]`);
+
+
+          // Définir le contrôleur pour stopper la lecture du flux
+          let controller;
+          let reader;
+          let isStopped = false;
+
+          const datasetInfo = {
+            lignes: el.dataset.ligne,
+            nbColonne: el.dataset.nbcolonne,
+            colonnes: el.dataset.colonne,
+            premiers: el.dataset.premiers,
+            numeric: el.dataset.numeric,
+            text: el.dataset.text,
+            types: el.dataset.types,
+            MissingValues: el.dataset.missingvalues,
+            NonNull: el.dataset.nonnull,
+            Null: el.dataset.null,
+            duplicates_consecutive: el.dataset.duplicates_consecutive,
+            duplicates_nonconsecutive: el.dataset.duplicates_nonconsecutive,
+            duplicates_all: el.dataset.duplicates_all
+          };
+
+          // Empêcher les clics multiples
+          button.disabled = true;
+          stopButton.style.display = 'inline-block';
+          stopButton.disabled = false;
+
+          // Construire dynamiquement le prompt
+          let prompt = "";
+          if (section === "Dataset") {
+            prompt = `
+            Voici un résumé du dataset :
+            - Lignes : ${datasetInfo.lignes}
+            - Colonnes : ${datasetInfo.nbColonne}
+            - Noms des colonnes : ${datasetInfo.colonnes}
+            
+            Analyse la structure du dataset :
+            - Classe son volume (faible, moyen, élevé).
+            - Rédige en français, clair et professionnel.`;
+          } else if (section === "Colonnes") {
+            prompt = `Rédige en français de façon claire, concise et accessible.
+
+            Voici un aperçu des colonnes :
+            - Nombre des colonnes : ${datasetInfo.nbColonne}
+            - types des colonnes :  ${datasetInfo.types}
+            - Noms des toutes les colonnes numerique : ${datasetInfo.numeric}
+            - Noms des toutes les colonnes textuelles : ${datasetInfo.text}
+
+
+            Pour chaque colonne :
+            1. ** Nombre des colonnes ** : Types des colonnes + Explication simple.`;
+          } else if (section === "Missing-Values") {
+              prompt = `
+              Analyser les valeurs manquantes du dataset fourni, en utilisant les informations suivantes :
+              - Les colonnes avec leur nombre exact de valeurs manquantes : ${datasetInfo.MissingValues}
+              - Liste des colonnes contenant des valeurs manquantes > 0 : ${datasetInfo.NonNull}
+              - Liste des colonnes sans aucune valeur manquante : ${datasetInfo.Null}
+
+              1. ** Diagnostic clair et structuré ** : phrase explicite et synthétique
+              2. ** Recommandations de traitement **
+              `;
+          } else if (section === "Duplicates") {
+              prompt = `Analyse les doublons dans un dataset à partir des informations suivantes :
+
+              1. **Doublons non consécutifs** : ${datasetInfo.duplicates_nonconsecutive} lignes
+              2. **Doublons consécutifs** :
+                - Nombre de groupes : ${datasetInfo.duplicates_consecutive}
+              3. **Total général de doublons (toutes occurrences)** : ${datasetInfo.duplicates_all} lignes
+
+              Tâches demandées :
+
+              - Définis brièvement ce qu'est un doublon non consécutif et un doublon consécutif dans un jeu de données.
+              - Explique l'importance de détecter et distinguer ces deux types de doublons dans le cadre d'un nettoyage ou d'une analyse de données.
+              - Interprète ces chiffres : sont-ils préoccupants ? À quel moment un taux élevé de doublons devient-il problématique ?
+              - Donne des recommandations professionnelles (en français clair) sur les actions à envisager (ex. : suppression, consolidation, analyse manuelle).
+              - Adopte un ton professionnel, adapté à un rapport d'analyse de données destiné à un public non expert en data science.
+
+              Rappelle-toi que cette explication sera affichée dans une application d'analyse de dataset. Sois concis, structuré et pédagogique.
+              `;
+          }
+
+
+          let displayText = '';
+          let timer = 0;
+          const startTime = performance.now();
+
+          el.innerHTML = '⏱️ Génération en cours : 0.0 sec';
+          
+
+          const timerId = setInterval(() => {
+            const currentTime = ((performance.now() - startTime) / 1000).toFixed(1);
+            el.innerHTML = displayText + `<br><br>⏱️ Génération en cours : ${currentTime} sec`;
+          }, 100);
+
+          const state = {
+            isBold: false,
+            boldBuffer: '',
+            asteriskCount: 0
+          };
+
+          stopButton.addEventListener('click', () => {
+            isStopped = true;
+            if (controller) controller.abort(); // Stoppe la lecture
+            clearInterval(timerId);
+            el.innerHTML += `<br><br>🛑 Explication arrêtée par l'utilisateur.`;
+            button.disabled = false;
+            stopButton.style.display = 'none';
+          }, { once: true }); // une seule fois pour éviter conflits
+
+          try {
+            controller = new AbortController();
+            const response = await fetch(`/stream_explanation/?prompt=${encodeURIComponent(prompt)}`, {
+              signal: controller.signal
+            });
+
+            reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            async function readChunk() {
+              const { done, value } = await reader.read();
+              if (done || isStopped) {
+                clearInterval(timerId);
+                const duration = ((performance.now() - startTime) / 1000).toFixed(2);
+                if (!isStopped) el.innerHTML = displayText + `<br><br>✅ Temps total : ${duration} sec`;
+                button.disabled = false;
+                stopButton.style.display = 'none';
+                return;
+              }
+
+              const chunk = decoder.decode(value, { stream: true });
+              const formattedChunk = formatAIChunk(chunk, state);
+              displayText += formattedChunk;
+              await readChunk();
+            }
+
+            await readChunk();
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              console.error("Erreur IA :", error);
+              el.textContent = "❌ Erreur lors de la génération de l'explication.";
+            }
+          } finally {
+            button.disabled = false;
+            stopButton.style.display = 'none';
+            clearInterval(timerId);
+          }
+        });
+      });
+    </script>
+    
+</body>
+</html>

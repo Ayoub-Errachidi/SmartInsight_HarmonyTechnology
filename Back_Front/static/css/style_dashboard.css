@@ -1,0 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css');
+
+/* Variables de couleurs */
+:root {
+    --light-bg: #f6f6f9;
+    --light-primary: #FBC02D;
+    --light-text: #363949;
+    --danger: #D32F2F;
+
+    --dark-bg: #1e1e2f;
+    --dark-primary: #FFD54F;
+    --dark-text: #f6f6f9;
+}
+
+/* Reset global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    transition: background 0.4s ease, color 0.4s ease;
+}
+
+/* Light / Dark mode variables */
+body.light-mode {
+    --bg: var(--light-bg);
+    --primary: var(--light-primary);
+    --text-color: var(--light-text);
+}
+
+body.dark-mode {
+    --bg: var(--dark-bg);
+    --primary: var(--dark-primary);
+    --text-color: var(--dark-text);
+}
+
+/* Background */
+.background {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: url("../images/Harmony_Technology.png") no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Overlay sombre par défaut */
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(0,0,0,0.7);
+    transition: background-color 0.4s ease;
+}
+
+/* Overlay selon mode */
+body.light-mode .overlay {
+    background-color: rgba(0,0,0,0.5);
+}
+
+body.dark-mode .overlay {
+    background-color: rgba(0,0,0,0.8);
+}
+
+/* Toggle icône thème */
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--primary);
+    transition: color 0.3s ease;
+}
+
+.theme-toggle:hover {
+    color: #ffd54f;
+}
+
+/* Container */
+.container {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-content {
+    background: rgba(255,255,255,0.95);
+    padding: 50px 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    transition: background 0.4s ease, color 0.4s ease;
+    color: var(--text-color);
+}
+
+body.dark-mode .main-content {
+    background: rgba(30,30,47,0.95);
+}
+
+/* Header */
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Error message */
+.error-message {
+    color: var(--danger);
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* Formulaire upload */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.upload-form input[type="file"] {
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    background: linear-gradient(145deg, #ffffff, #f3f3f3);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.upload-form input[type="file"]:hover {
+    border-color: var(--primary);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.15), 0 6px 12px rgba(251,192,45,0.2);
+}
+
+body.dark-mode .upload-form input[type="file"] {
+    background: #2c2c3c;
+    border: 1px solid #555;
+    color: var(--text-color);
+}
+
+/* Button submit */
+.upload-form button {
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(120deg, var(--primary), #ffd54f);
+    color: var(--text-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.upload-form button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+/* Loader */
+#loader {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media(max-width: 576px) {
+    .main-content {
+        padding: 30px 20px;
+        border-radius: 16px;
+    }
+
+    .header h1 {
+        font-size: 1.6rem;
+    }
+
+    .theme-toggle {
+        font-size: 1.5rem;
+    }
+}

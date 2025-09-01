@@ -1,0 +1,104 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataSet - SmartInsight</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/nettoyage/styles_val.css' %}">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class='bx bx-stats'></i>
+            <div class="logo-name"><span>Smart</span>Insight</div>
+        </a>
+
+        <ul class="side-menu">
+            <li><a href="{% url 'dashboard' %}"><i class='bx bxs-dashboard'></i>Import a file</a></li>
+            <li class="active"><a href="{% url 'informations_dataset' %}"><i class='bx bxs-color'></i>Dashboard</a></li>
+            <li><a href="{% url 'dataset' %}"><i class='bx bx-data'></i>DataSet</a></li>
+            <li><a href="{% url 'statistiques' %}"><i class='bx  bx-bar-chart'></i>Statistics</a></li>
+            <li><a href="{% url 'visualisations' %}"><i class='bx bx-scatter-chart' ></i>Visualization</a></li>
+            <li><a href="{% url 'pretraitement_complet' %}"><i class='bx bx-message-square-dots'></i>Full cleaning</a></li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button class="search-btn" type="submit"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="theme-toggle" hidden>
+            <label for="theme-toggle" class="theme-toggle"></label>
+            <a href="#" class="notif">
+                <i class='bx bx-bell'></i>
+                <span class="count">12</span>
+            </a>
+            <a href="#" class="profile">
+                <img src="{% static 'images/111.png' %}">
+            </a>
+        </nav>
+        <!-- End of Navbar -->
+
+        <main>
+            <section class="cleaning-results">
+                <h1 style="color: #FBC02D;">Résultat du Nettoyage des Données</h1> 
+
+                <h3 style="color: #AAAAAA;">Valeurs Manquantes</h3>
+                {% if null_values_list %}
+                    <ul class="missing-values-list">
+                        {% for col, count, percent in null_values_list %}
+                            <li>
+                                <strong style="color: #363949;">{{ col }} </strong>
+                                {% if count > 0 %}
+                                    <span class="missing-value">{{ count }} valeurs manquantes ({{ percent }}%)</span>
+                                {% else %}
+                                    <span class="no-missing">Aucune valeur manquante</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Aucune colonne détectée.</p>
+                {% endif %}
+
+                <h1 style="color: #FBC02D;">Résumé du Nettoyage</h1>
+                <ul class="summary-list">
+                    <li style="color: #363949;"><strong>Lignes avant :</strong> <span class="highlight">{{ rows_before }}</span></li>
+                    <li style="color: #363949;"><strong>Lignes après nettoyage :</strong> <span class="highlight">{{ rows_after }}</span></li>
+                    <li style="color: #363949;"><strong>Lignes supprimées :</strong> <span class="deleted">{{ rows_removed }}</span></li>
+
+                    <li style="color: #363949;"><strong>Colonnes avant :</strong> {{ cols_before }}</li>
+                    <li style="color: #363949;"><strong>Colonnes après nettoyage :</strong> {{ cols_after }}
+                        {% if columns_after %} { {{ columns_after|join:", " }} } {% endif %}
+                    </li>
+
+                    <li style="color: #363949;"><strong>Colonnes supprimées :</strong> {{ cols_removed }}
+                        {% if removed_columns %} { {{ removed_columns|join:", " }} } {% else %} { Aucune } {% endif %}
+                    </li>
+
+                    <li style="color: #363949;"><strong>Colonnes corrigées :</strong> {{ cols_filled }}
+                        {% if cols_touched %} { {{ cols_touched|join:", " }} } {% else %} { Aucune } {% endif %}
+                    </li>
+                </ul>
+            </section>
+        </main>
+    </div>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+</html>

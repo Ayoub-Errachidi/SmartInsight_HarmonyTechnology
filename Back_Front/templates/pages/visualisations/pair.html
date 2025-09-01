@@ -1,0 +1,167 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataSet - SmartInsight</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/visualisations/styles_pair.css' %}">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class='bx bx-stats'></i>
+            <div class="logo-name"><span>Smart</span>Insight</div>
+        </a>
+
+        <ul class="side-menu">
+            <li><a href="{% url 'dashboard' %}"><i class='bx bxs-dashboard'></i>Import a file</a></li>
+            <li><a href="{% url 'informations_dataset' %}"><i class='bx bxs-color'></i>Dashboard</a></li>
+            <li><a href="{% url 'dataset' %}"><i class='bx bx-data'></i>DataSet</a></li>
+            <li><a href="{% url 'statistiques' %}"><i class='bx  bx-bar-chart'></i>Statistics</a></li>
+            <li class="active"><a href="{% url 'visualisations' %}"><i class='bx bx-scatter-chart' ></i>Visualization</a></li>
+            <li><a href="{% url 'pretraitement_complet' %}"><i class='bx bx-message-square-dots'></i>Full cleaning</a></li>
+            <li><a href="{% url 'choix_cible' %}"><i class='bx bx-crosshair'></i>Target selection</a></li>
+            <li><a href="{% url 'transformation_colonnes' %}"><i class='bx bx-analyse'></i>Data Preprocessing </a></li>
+            <li><a href="{% url 'resultats_entrainement' %}"><i class="bx bx-bot"></i>Model Training</a></li>
+            <li><a href="{% url 'prediction' %}"><i class='bx bx-check-shield'></i>Prediction</a></li>
+            <li><a href="{% url 'rapport_pdf' %}"><i class='bx bx-cloud-upload' ></i>Download PDF</a></li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button class="search-btn" type="submit"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="theme-toggle" hidden>
+            <label for="theme-toggle" class="theme-toggle"></label>
+            <a href="#" class="notif">
+                <i class='bx bx-bell'></i>
+                <span class="count">12</span>
+            </a>
+            <a href="#" class="profile">
+                <img src="{% static 'images/111.png' %}">
+            </a>
+        </nav>
+        <!-- End of Navbar -->
+
+        <main>
+            <header class="page-header">{{ title }}</header>
+
+            <!-- Formulaire interactif -->
+            <form method="get" action="{% url 'generate_plot' plot_type='pair1' %}">
+                <div>
+                    <label for="col1">Première colonne</label>
+                    <select name="col1" id="col1" required>
+                        {% for column in columns %}
+                            <option value="{{ column }}" {% if column == col1 %}selected{% endif %}>{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="col2">Deuxième colonne</label>
+                    <select name="col2" id="col2" required>
+                        {% for column in columns %}
+                            <option value="{{ column }}" {% if column == col2 %}selected{% endif %}>{{ column }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="btn-container">
+                    <button type="submit">Générer le Pair Plot</button>
+                </div>
+            </form>
+
+            <!-- Loader -->
+            <div id="loader">
+                <p>Génération du graphique...</p>
+            </div>
+
+            <!-- Plot container -->
+            {% if plot_image %}
+                <div class="plot-container" id="plotContainer">
+                    <h3>{{ title }}</h3>
+                    <img id="plotImage" src="data:image/png;base64,{{ plot_image }}" alt="Pair Plot">
+                    <button class="btn-download" title="Télécharger ce graphique" data-img-id="plotImage">
+                        Télécharger
+                    </button>
+                </div>
+            {% endif %}
+        </main>
+
+    </div>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+
+    <!-- Scripts d'interaction -->
+    <script>
+        // Désactiver col2 si identique à col1
+        const col1Select = document.getElementById('col1');
+        const col2Select = document.getElementById('col2');
+        if(col1Select && col2Select){
+            col1Select.addEventListener('change', () => {
+                const selected = col1Select.value;
+                Array.from(col2Select.options).forEach(option => {
+                    option.disabled = option.value === selected;
+                });
+            });
+        }
+
+        // Afficher loader au submit
+        const form = document.querySelector('form');
+        if(form){
+            form.addEventListener('submit', () => {
+                document.getElementById('loader').style.display = 'block';
+            });
+        }
+
+        // Animation du plot
+        const plotImg = document.getElementById('plotImage');
+        const plotContainer = document.getElementById('plotContainer');
+        if(plotImg){
+            plotImg.onload = () => {
+                plotImg.classList.add('loaded');
+                if(plotContainer){
+                    plotContainer.classList.add('visible');
+                }
+            };
+        }
+
+        // Fonction téléchargement
+        document.querySelectorAll('.btn-download').forEach(button => {
+            button.addEventListener('click', function () {
+                const imgId = this.getAttribute('data-img-id');
+                const img = document.getElementById(imgId);
+                const col1 = document.getElementById("col1")?.value || "col1";
+                const col2 = document.getElementById("col2")?.value || "col2";
+                const filename = `Pair - ${col1} vs ${col2}.png`;
+
+                if (img && img.src.startsWith('data:image')) {
+                    const link = document.createElement('a');
+                    link.href = img.src;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    alert("Image non trouvée ou format incorrect.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataSet - SmartInsight</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/nettoyage/styles_net_global.css' %}">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class='bx bx-stats'></i>
+            <div class="logo-name"><span>Smart</span>Insight</div>
+        </a>
+
+        <ul class="side-menu">
+            <li><a href="{% url 'dashboard' %}"><i class='bx bxs-dashboard'></i>Import a file</a></li>
+            <li><a href="{% url 'informations_dataset' %}"><i class='bx bxs-color'></i>Dashboard</a></li>
+            <li><a href="{% url 'dataset' %}"><i class='bx bx-data'></i>DataSet</a></li>
+            <li><a href="{% url 'statistiques' %}"><i class='bx  bx-bar-chart'></i>Statistics</a></li>
+            <li><a href="{% url 'visualisations' %}"><i class='bx bx-scatter-chart' ></i>Visualization</a></li>
+        </ul>
+
+        <ul class="side-menu">
+            <li class="active"><a href="{% url 'pretraitement_complet' %}"><i class='bx bx-message-square-dots'></i>Full cleaning</a></li>
+            <li><a href="{% url 'download_dataset' %}"><i class='bx bx-crosshair'></i>Clean Dataset</a></li>
+        </ul>
+        
+        <ul class="side-menu">
+            <li><a href="{% url 'choix_cible' %}"><i class='bx bx-crosshair'></i>Target selection</a></li>
+            <li><a href="{% url 'transformation_colonnes' %}"><i class='bx bx-analyse'></i>Data Preprocessing </a></li>
+            <li><a href="{% url 'resultats_entrainement' %}"><i class="bx bx-bot"></i>Model Training</a></li>
+            <li><a href="{% url 'prediction' %}"><i class='bx bx-check-shield'></i>Prediction</a></li>
+            <li><a href="{% url 'rapport_pdf' %}"><i class='bx bx-cloud-upload' ></i>Download PDF</a></li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button class="search-btn" type="submit"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="theme-toggle" hidden>
+            <label for="theme-toggle" class="theme-toggle"></label>
+            <a href="#" class="notif">
+                <i class='bx bx-bell'></i>
+                <span class="count">12</span>
+            </a>
+            <a href="#" class="profile">
+                <img src="{% static 'images/111.png' %}">
+            </a>
+        </nav>
+        <!-- End of Navbar -->
+
+        <main>
+            <header class="page-header">Résultats du Prétraitement Global</header>
+
+            {% if error %}
+            <div class="alert alert-danger">
+                <strong>Erreur :</strong> {{ error }}
+            </div>
+            {% else %}
+
+            <div class="card">
+            <div class="card-header">Résumé du Dataset</div>
+            <div class="card-body">
+                <ul>
+                    <li><strong>Lignes avant :</strong> <span class="highlight">{{ rows_before }}</span></li>
+                    <li><strong>Lignes après :</strong> <span class="highlight">{{ rows_after }}</span></li>
+                    <li><strong>Lignes supprimées :</strong> <span class="deleted">{{ rows_removed }}</span></li>
+                    <li><strong>Colonnes avant :</strong> <span class="highlight">{{ cols_before }}</span></li>
+                    <li><strong>Colonnes après :</strong> <span class="highlight">{{ cols_after }}</span></li>
+                    <li><strong>Colonnes supprimées :</strong> <span class="deleted">{{ cols_removed }}</span></li>
+                </ul>
+            </div>
+            </div>
+
+            <div class="card">
+            <div class="card-header">Colonnes avec valeurs nulles restantes</div>
+            <div class="card-body">
+                {% if colonnes_nulles %}
+                <table class="dataset-table">
+                    <thead>
+                    <tr>
+                        <th>Colonne</th>
+                        <th>Nb valeurs nulles</th>
+                        <th>% valeurs nulles</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for col, nulls, pct in colonnes_nulles %}
+                    <tr>
+                        <td>{{ col }}</td>
+                        <td>{{ nulls }}</td>
+                        <td>{{ pct }} %</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="alert alert-success">✅ Aucune valeur manquante restante.</p>
+                {% endif %}
+            </div>
+            </div>
+
+            <div class="card">
+            <div class="card-header">Nettoyage des valeurs aberrantes (Outliers)</div>
+            <div class="card-body">
+                {% if methode_outliers %}
+                <ul>
+                    <li><strong>Méthode appliquée :</strong> {{ methode_outliers }}</li>
+                    {% if stats_outliers.nb_lignes_supprimees > 0 %}
+                    <li><strong>Nombre de lignes supprimées :</strong> <span class="deleted">{{ stats_outliers.nb_lignes_supprimees }}</span></li>
+                    <li><strong>Indices des lignes supprimées :</strong> {{ stats_outliers.indices_supprimes|join:", " }}</li>
+                    {% else %}
+                    <li>Aucune ligne supprimée (Winsorisation appliquée sur les colonnes numériques).</li>
+                    {% endif %}
+                </ul>
+                {% else %}
+                <p class="alert alert-info">Aucun nettoyage des outliers effectué.</p>
+                {% endif %}
+            </div>
+            </div>
+
+            {% endif %}
+        </main>
+
+    </div>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    
+</body>
+</html>

@@ -1,0 +1,119 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataSet - SmartInsight</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/nettoyage/styles_supp_col.css' %}">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class='bx bx-stats'></i>
+            <div class="logo-name"><span>Smart</span>Insight</div>
+        </a>
+
+        <ul class="side-menu">
+            <li><a href="{% url 'dashboard' %}"><i class='bx bxs-dashboard'></i>Import a file</a></li>
+            <li><a href="{% url 'informations_dataset' %}"><i class='bx bxs-color'></i>Dashboard</a></li>
+        </ul>
+
+        <ul class="side-menu">
+            <li><a href="{% url 'dataset' %}"><i class='bx bx-data'></i>DataSet</a></li>
+            <li class="active"><a href="{% url 'supprimer_colonnes_page' %}"><i class='bx bx-x'></i>Remove columns</a></li>
+        </ul>
+
+        <ul class="side-menu">
+            <li><a href="{% url 'statistiques' %}"><i class='bx  bx-bar-chart'></i>Statistics</a></li>
+            <li><a href="{% url 'visualisations' %}"><i class='bx bx-scatter-chart' ></i>Visualization</a></li>
+            <li><a href="{% url 'pretraitement_complet' %}"><i class='bx bx-message-square-dots'></i>Full cleaning</a></li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button class="search-btn" type="submit"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="theme-toggle" hidden>
+            <label for="theme-toggle" class="theme-toggle"></label>
+            <a href="#" class="notif">
+                <i class='bx bx-bell'></i>
+                <span class="count">12</span>
+            </a>
+            <a href="#" class="profile">
+                <img src="{% static 'images/111.png' %}">
+            </a>
+        </nav>
+        <!-- End of Navbar -->
+
+        <main>
+            <div class="card-container">
+                <h1 style="color: #FBC02D;">Supprimer des Colonnes</h1><br>
+
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                {% if colonnes %}
+                <form method="POST" action="{% url 'supprimer_colonnes_action' %}">
+                    {% csrf_token %}
+                    <div class="form-check-container">
+                    {% if colonnes|length == 1 %}
+                        <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="colonnes" value="{{ colonnes.0 }}" id="col-1" disabled>
+                        <label class="form-check-label text-muted" for="col-1">{{ colonnes.0 }}</label>
+                        <small class="text-danger d-block">(Impossible de supprimer la dernière colonne)</small>
+                        </div>
+                    {% else %}
+                        {% for col in colonnes %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="colonnes" value="{{ col }}" id="col-{{ forloop.counter }}">
+                            <label class="form-check-label" for="col-{{ forloop.counter }}">{{ col }}</label>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    </div>
+                    <button type="submit" class="btn-delete">Supprimer les colonnes sélectionnées</button>
+                </form>
+                {% else %}
+                <p>Aucune colonne disponible.</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    {% if colonnes|length > 1 %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+            const checkboxes = document.querySelectorAll('input[name="colonnes"]');
+            checkboxes.forEach(cb => {
+                cb.addEventListener("change", function() {
+                const checked = document.querySelectorAll('input[name="colonnes"]:checked').length;
+                if (checked === checkboxes.length) {
+                    alert("Vous ne pouvez pas supprimer toutes les colonnes.");
+                    this.checked = false;
+                }
+                });
+            });
+            });
+        </script>
+    {% endif %}
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    
+</body>
+</html>

@@ -1,0 +1,141 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataSet - SmartInsight</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/visualisations/styles_histogram.css' %}">
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#" class="logo">
+            <i class='bx bx-stats'></i>
+            <div class="logo-name"><span>Smart</span>Insight</div>
+        </a>
+        <ul class="side-menu">
+            <li><a href="{% url 'dashboard' %}"><i class='bx bxs-dashboard'></i>Import a file</a></li>
+            <li><a href="{% url 'informations_dataset' %}"><i class='bx bxs-color'></i>Dashboard</a></li>
+            <li><a href="{% url 'dataset' %}"><i class='bx bx-data'></i>DataSet</a></li>
+            <li><a href="{% url 'statistiques' %}"><i class='bx  bx-bar-chart'></i>Statistics</a></li>
+            <li class="active"><a href="{% url 'visualisations' %}"><i class='bx bx-scatter-chart' ></i>Visualization</a></li>
+            <li><a href="{% url 'pretraitement_complet' %}"><i class='bx bx-message-square-dots'></i>Full cleaning</a></li>
+            <li><a href="{% url 'choix_cible' %}"><i class='bx bx-crosshair'></i>Target selection</a></li>
+            <li><a href="{% url 'transformation_colonnes' %}"><i class='bx bx-analyse'></i>Data Preprocessing </a></li>
+            <li><a href="{% url 'resultats_entrainement' %}"><i class="bx bx-bot"></i>Model Training</a></li>
+            <li><a href="{% url 'prediction' %}"><i class='bx bx-check-shield'></i>Prediction</a></li>
+            <li><a href="{% url 'rapport_pdf' %}"><i class='bx bx-cloud-upload' ></i>Download PDF</a></li>
+        </ul>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Navbar -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <form action="#">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button class="search-btn" type="submit"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            <input type="checkbox" id="theme-toggle" hidden>
+            <label for="theme-toggle" class="theme-toggle"></label>
+            <a href="#" class="notif">
+                <i class='bx bx-bell'></i>
+                <span class="count">12</span>
+            </a>
+            <a href="#" class="profile">
+                <img src="{% static 'images/111.png' %}">
+            </a>
+        </nav>
+        <!-- End of Navbar -->
+
+
+        <main>
+            <header class="page-header">{{ title }}</header>
+
+            {% if plot_images %}
+                {% for item in plot_images %}
+                    <div class="plot-container">
+                        <h3>{{ item.col_name }}</h3>
+                        <img src="data:image/png;base64,{{ item.image }}" class="img-fluid" id="plotImage-{{ forloop.counter }}">
+                        
+                        <br>
+                        <button class="btn btn-download" 
+                                data-img-id="plotImage-{{ forloop.counter }}" 
+                                data-filename="{% if title == 'Box Plots' %}boxplot_{% elif title == 'Line Plot' %}line_{% elif title == 'Violin Plot' %}violin_{% else %}histogram_{% endif %}{{ item.col_name|slugify }}.png">
+                            Télécharger
+                        </button>
+                    </div>
+                {% endfor %}
+
+            {% elif plot_image %}
+                <div class="plot-container">
+                    <img src="data:image/png;base64,{{ plot_image }}" class="img-fluid" id="plotImage">
+                    
+                    <button class="btn btn-download" 
+                            data-img-id="plotImage" 
+                            data-filename="{{ download_filename }}">
+                        Télécharger
+                    </button>
+                </div>
+
+                {% if high_corr_pairs %}
+                <div class="explanations">
+                    <h2>Variables fortement corrélées (multicolinéarité)</h2>
+                    <div class="explanation-item">
+                        <h3>Paires corrélées (|corr| ≥ 0.6)</h3>
+                        <ul>
+                            {% for pair in high_corr_pairs %}
+                            <li>
+                                Corr(<strong>{{ pair.var1 }}</strong>, <strong>{{ pair.var2 }}</strong>) = {{ pair.corr }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <p>Aucun graphique généré.</p>
+            {% endif %}
+        </main>
+
+
+
+
+    </div>
+
+    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.btn-download').forEach(button => {
+                button.addEventListener('click', function () {
+                    const imgId = this.getAttribute('data-img-id');
+                    const filename = this.getAttribute('data-filename');
+                    const img = document.getElementById(imgId);
+
+                    if (img && img.src.startsWith('data:image')) {
+                        const link = document.createElement('a');
+                        link.href = img.src;
+                        link.download = filename || "plot.png";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        alert("Image non trouvée ou format incorrect.");
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
